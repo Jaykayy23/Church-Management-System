@@ -1,55 +1,18 @@
-const contributions = [
-  {
-    name: "Adebayo Johnson",
-    type: "Tithe",
-    project: "General Fund",
-    date: "Mar 5, 2026",
-    amount: "₦150,000",
-    chip: "orange",
-  },
-  {
-    name: "Grace Okonkwo",
-    type: "Offering",
-    project: "Building Fund",
-    date: "Mar 4, 2026",
-    amount: "₦50,000",
-    chip: "green",
-  },
-  {
-    name: "Emmanuel Eze",
-    type: "Tithe",
-    project: "General Fund",
-    date: "Mar 3, 2026",
-    amount: "₦200,000",
-    chip: "orange",
-  },
-  {
-    name: "Blessing Nwachukwu",
-    type: "Donation",
-    project: "Youth Center",
-    date: "Mar 2, 2026",
-    amount: "₦500,000",
-    chip: "blue",
-  },
-  {
-    name: "Samuel Adeyemi",
-    type: "Tithe",
-    project: "General Fund",
-    date: "Mar 2, 2026",
-    amount: "₦75,000",
-    chip: "orange",
-  },
-  {
-    name: "Mercy Okafor",
-    type: "Seed",
-    project: "Outreach",
-    date: "Mar 1, 2026",
-    amount: "₦100,000",
-    chip: "orange",
-  },
-];
+import { getContributions } from "@/lib/data";
+import { formatNaira } from "@/lib/format";
+import Link from "next/link";
 
-export default function ContributionsPage() {
+const chipMap: Record<string, string> = {
+  Tithe: "orange",
+  Offering: "green",
+  Donation: "blue",
+  Seed: "orange",
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function ContributionsPage() {
+  const contributions = await getContributions();
   return (
     <div>
       <div className="gp-page-header">
@@ -60,20 +23,20 @@ export default function ContributionsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button className="gp-muted-btn">
+          <Link className="gp-muted-btn" href="/api/export/contributions">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 4v10" />
               <path d="M7 9l5 5 5-5" />
               <rect x="4" y="18" width="16" height="2" rx="1" />
             </svg>
             Export
-          </button>
-          <button className="gp-action-btn">
+          </Link>
+          <Link className="gp-action-btn" href="/contributions/new">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 5v14M5 12h14" />
             </svg>
             Record Contribution
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -101,14 +64,22 @@ export default function ContributionsPage() {
           </thead>
           <tbody>
             {contributions.map((row) => (
-              <tr key={row.name + row.date}>
-                <td>{row.name}</td>
+              <tr key={row.id}>
+                <td>{row.member_name}</td>
                 <td>
-                  <span className={`gp-chip ${row.chip}`}>{row.type}</span>
+                  <span className={`gp-chip ${chipMap[row.type] ?? "orange"}`}>
+                    {row.type}
+                  </span>
                 </td>
                 <td>{row.project}</td>
-                <td>{row.date}</td>
-                <td className="amount">{row.amount}</td>
+                <td>
+                  {new Date(row.date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </td>
+                <td className="amount">{formatNaira(row.amount)}</td>
               </tr>
             ))}
           </tbody>

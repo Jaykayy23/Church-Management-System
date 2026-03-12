@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  username     String   @unique
+  name         String?
+  role         String
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("users")
+}
+
+model Event {
+  id            String   @id @default(uuid()) @db.Uuid
+  title         String
+  startAt       DateTime @map("start_at") @db.Timestamptz(6)
+  location      String
+  expectedCount Int      @default(0) @map("expected_count")
+  category      String
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("events")
+}
+
+model Member {
+  id        String   @id @default(uuid()) @db.Uuid
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  role      String
+  team      String
+  phone     String
+  email     String
+  joinedAt  DateTime @map("joined_at") @db.Date
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  contributions Contribution[]
+
+  @@map("members")
+}
+
+model Project {
+  id           String   @id @default(uuid()) @db.Uuid
+  title        String
+  status       String
+  raisedAmount Decimal  @default(0) @map("raised_amount")
+  goalAmount   Decimal  @default(0) @map("goal_amount")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("projects")
+}
+
+model Contribution {
+  id        String   @id @default(uuid()) @db.Uuid
+  memberId  String   @map("member_id") @db.Uuid
+  type      String
+  project   String
+  date      DateTime @db.Date
+  amount    Decimal
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@map("contributions")
+}
+
+model OffertoryRecord {
+  id        String   @id @default(uuid()) @db.Uuid
+  date      DateTime @db.Date
+  type      String
+  givers    Int      @default(0)
+  amount    Decimal
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("offertory_records")
+}

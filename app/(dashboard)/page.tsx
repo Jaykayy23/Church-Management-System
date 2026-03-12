@@ -1,63 +1,12 @@
-const stats = [
-  {
-    label: "Total Members",
-    value: "1,247",
-    meta: "+12%",
-    color: "blue",
-    icon: "users",
-  },
-  {
-    label: "This Month's Offertory",
-    value: "₦2,450,000",
-    meta: "+8.2%",
-    color: "orange",
-    icon: "cash",
-  },
-  {
-    label: "Upcoming Events",
-    value: "6",
-    meta: "This week",
-    color: "green",
-    icon: "calendar",
-  },
-  {
-    label: "Active Projects",
-    value: "4",
-    meta: "₦8.2M budget",
-    color: "yellow",
-    icon: "folder",
-  },
-];
+import {
+  getDashboardStats,
+  getUpcomingEvents,
+  getRecentOffertory,
+} from "@/lib/data";
+import { formatNaira } from "@/lib/format";
+import Link from "next/link";
 
-const upcomingEvents = [
-  {
-    title: "Sunday Worship Service",
-    date: "Mar 9, 2026 - 9:00 AM",
-    tag: "342 expected",
-  },
-  {
-    title: "Youth Fellowship",
-    date: "Mar 11, 2026 - 5:00 PM",
-    tag: "89 expected",
-  },
-  {
-    title: "Bible Study",
-    date: "Mar 12, 2026 - 6:30 PM",
-    tag: "120 expected",
-  },
-  {
-    title: "Prayer Meeting",
-    date: "Mar 13, 2026 - 6:00 AM",
-    tag: "85 expected",
-  },
-];
-
-const offertory = [
-  { title: "Sunday Service", date: "Mar 2, 2026", amount: "₦485,000" },
-  { title: "Sunday Service", date: "Feb 23, 2026", amount: "₦520,000" },
-  { title: "Special Offering", date: "Feb 16, 2026", amount: "₦750,000" },
-  { title: "Sunday Service", date: "Feb 9, 2026", amount: "₦445,000" },
-];
+export const dynamic = "force-dynamic";
 
 function StatIcon({ name }: { name: string }) {
   if (name === "users") {
@@ -97,7 +46,51 @@ function StatIcon({ name }: { name: string }) {
   return null;
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const [statsData, events, offertory] = await Promise.all([
+    getDashboardStats(),
+    getUpcomingEvents(4),
+    getRecentOffertory(4),
+  ]);
+
+  const stats = [
+    {
+      label: "Total Members",
+      value: statsData.totalMembers.toLocaleString(),
+      meta: `${statsData.membersChangePct >= 0 ? "↗" : "↘"} ${Math.abs(
+        statsData.membersChangePct
+      ).toFixed(1)}%`,
+      metaClass: statsData.membersChangePct >= 0 ? "" : "down",
+      color: "blue",
+      icon: "users",
+    },
+    {
+      label: "This Month's Offertory",
+      value: formatNaira(statsData.thisMonthOffertory),
+      meta: `${statsData.offertoryChangePct >= 0 ? "↗" : "↘"} ${Math.abs(
+        statsData.offertoryChangePct
+      ).toFixed(1)}%`,
+      metaClass: statsData.offertoryChangePct >= 0 ? "" : "down",
+      color: "orange",
+      icon: "cash",
+    },
+    {
+      label: "Upcoming Events",
+      value: statsData.upcomingEvents.toString(),
+      meta: "This week",
+      metaClass: "",
+      color: "green",
+      icon: "calendar",
+    },
+    {
+      label: "Active Projects",
+      value: statsData.activeProjects.toString(),
+      meta: `${formatNaira(statsData.activeBudget)} budget`,
+      metaClass: "",
+      color: "yellow",
+      icon: "folder",
+    },
+  ];
   return (
     <div>
       <div className="gp-page-header">
@@ -115,7 +108,7 @@ export default function DashboardPage() {
             <div>
               <p className="gp-stat-label">{stat.label}</p>
               <p className="gp-stat-value">{stat.value}</p>
-              <p className="gp-stat-meta">{stat.meta}</p>
+              <p className={`gp-stat-meta ${stat.metaClass}`}>{stat.meta}</p>
             </div>
             <div className={`gp-stat-icon ${stat.color}`}>
               <StatIcon name={stat.icon} />
@@ -131,8 +124,8 @@ export default function DashboardPage() {
             <span className="gp-panel-link">View all</span>
           </div>
           <div className="gp-event-list">
-            {upcomingEvents.map((event) => (
-              <div key={event.title} className="gp-event-item">
+            {events.map((event) => (
+              <div key={event.id} className="gp-event-item">
                 <div className="gp-event-icon">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="5" width="18" height="16" rx="3" />
@@ -141,9 +134,19 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="gp-event-title">{event.title}</p>
-                  <p className="gp-event-meta">{event.date}</p>
+                  <p className="gp-event-meta">
+                    {new Date(event.startAt).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
-                <span className="gp-chip">{event.tag}</span>
+                <span className="gp-chip">
+                  {event.expectedCount} expected
+                </span>
               </div>
             ))}
           </div>
@@ -155,12 +158,20 @@ export default function DashboardPage() {
           </div>
           <div className="gp-table-wrap">
             {offertory.map((item) => (
-              <div key={item.date} className="gp-offertory-item">
+              <div key={item.id} className="gp-offertory-item">
                 <div>
-                  <p className="gp-event-title">{item.title}</p>
-                  <p className="gp-event-meta">{item.date}</p>
+                  <p className="gp-event-title">{item.type}</p>
+                  <p className="gp-event-meta">
+                    {new Date(item.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
-                <span className="gp-event-title">{item.amount}</span>
+                <span className="gp-event-title">
+                  {formatNaira(item.amount)}
+                </span>
               </div>
             ))}
           </div>
@@ -175,26 +186,26 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="gp-quick-buttons">
-          <button className="gp-quick-btn">
+          <Link className="gp-quick-btn" href="/offertory/new">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M3 7h18v10H3z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
             Record Offertory
-          </button>
-          <button className="gp-quick-btn secondary">
+          </Link>
+          <Link className="gp-quick-btn secondary" href="/members/new">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="7" r="3" />
               <path d="M5 21a7 7 0 0 1 14 0" />
             </svg>
             Add Member
-          </button>
-          <button className="gp-quick-btn ghost">
+          </Link>
+          <Link className="gp-quick-btn ghost" href="/events/new">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 5v14M5 12h14" />
             </svg>
             New Event
-          </button>
+          </Link>
         </div>
       </section>
     </div>

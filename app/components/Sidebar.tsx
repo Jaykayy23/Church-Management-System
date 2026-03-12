@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { label: "Dashboard", href: "/", icon: "grid" },
@@ -115,6 +116,29 @@ function SidebarSection({
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [nextEvent, setNextEvent] = useState<{ title: string; time: string }>({
+    title: "Upcoming Event",
+    time: "No scheduled time",
+  });
+
+  useEffect(() => {
+    fetch("/api/events")
+      .then((res) => res.json())
+      .then((data) => {
+        const first = data.data?.[0];
+        if (first) {
+          const time = new Date(first.startAt).toLocaleString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          setNextEvent({ title: first.title, time });
+        }
+      })
+      .catch(() => null);
+  }, []);
 
   return (
     <aside className="gp-sidebar">
@@ -135,8 +159,8 @@ export default function Sidebar() {
       <SidebarSection title="System" items={systemItems} pathname={pathname} />
 
       <div className="gp-upcoming">
-        <p className="gp-upcoming-title">Sunday Service</p>
-        <p className="gp-upcoming-time">Tomorrow, 9:00 AM</p>
+        <p className="gp-upcoming-title">{nextEvent.title}</p>
+        <p className="gp-upcoming-time">{nextEvent.time}</p>
       </div>
     </aside>
   );

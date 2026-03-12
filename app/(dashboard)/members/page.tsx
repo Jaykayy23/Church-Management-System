@@ -1,61 +1,10 @@
-const members = [
-  {
-    initials: "AJ",
-    name: "Adebayo Johnson",
-    role: "Deacon",
-    team: "Ushering",
-    phone: "+234 801 234 5678",
-    email: "adebayo@email.com",
-    since: "Member since Jan 2020",
-  },
-  {
-    initials: "GO",
-    name: "Grace Okonkwo",
-    role: "Member",
-    team: "Choir",
-    phone: "+234 802 346 6789",
-    email: "grace@email.com",
-    since: "Member since Mar 2019",
-  },
-  {
-    initials: "EE",
-    name: "Emmanuel Eze",
-    role: "Elder",
-    team: "Finance",
-    phone: "+234 803 456 7890",
-    email: "emmanuel@email.com",
-    since: "Member since Jan 2015",
-  },
-  {
-    initials: "BN",
-    name: "Blessing Nwachukwu",
-    role: "Member",
-    team: "Children's Ministry",
-    phone: "+234 804 567 8901",
-    email: "blessing@email.com",
-    since: "Member since Sep 2021",
-  },
-  {
-    initials: "SA",
-    name: "Samuel Adeyemi",
-    role: "Member",
-    team: "Leadership",
-    phone: "+234 805 678 9012",
-    email: "samuel@email.com",
-    since: "Member since Jan 2010",
-  },
-  {
-    initials: "MO",
-    name: "Mercy Okafor",
-    role: "Member",
-    team: "Media",
-    phone: "+234 806 789 0123",
-    email: "mercy@email.com",
-    since: "Member since Feb 2022",
-  },
-];
+import { getMembers } from "@/lib/data";
+import Link from "next/link";
 
-export default function MembersPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MembersPage() {
+  const members = await getMembers();
   return (
     <div>
       <div className="gp-page-header">
@@ -65,12 +14,12 @@ export default function MembersPage() {
             Manage church member records and information.
           </p>
         </div>
-        <button className="gp-action-btn">
+        <Link className="gp-action-btn" href="/members/new">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
           </svg>
           Add Member
-        </button>
+        </Link>
       </div>
 
       <div className="gp-search" style={{ marginBottom: "16px" }}>
@@ -82,12 +31,15 @@ export default function MembersPage() {
       </div>
 
       <div className="gp-grid">
-        {members.map((member) => (
-          <div key={member.name} className="gp-member-card">
+        {members.map((member) => {
+          const name = `${member.firstName} ${member.lastName}`;
+          const initials = `${member.firstName[0] ?? ""}${member.lastName[0] ?? ""}`;
+          return (
+          <div key={member.id} className="gp-member-card">
             <div className="gp-member-head">
-              <div className="gp-member-avatar">{member.initials}</div>
+              <div className="gp-member-avatar">{initials}</div>
               <div>
-                <p className="gp-member-title">{member.name}</p>
+                <p className="gp-member-title">{name}</p>
                 <div className="gp-member-tags">
                   <span className="gp-chip">{member.role}</span>
                   <span className="gp-chip gray">{member.team}</span>
@@ -113,11 +65,14 @@ export default function MembersPage() {
                   <rect x="3" y="5" width="18" height="16" rx="3" />
                   <path d="M8 3v4M16 3v4M3 9h18" />
                 </svg>
-                {member.since}
+                {`Member since ${new Date(member.joinedAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  year: "numeric",
+                })}`}
               </span>
             </div>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );

@@ -1,55 +1,20 @@
-const stats = [
-  { label: "This Month", value: "₦1,005,000" },
-  { label: "Last Month", value: "₦2,925,000" },
-  { label: "Total This Year", value: "₦5,910,000" },
-];
+import { getOffertoryRecords, getOffertoryStats } from "@/lib/data";
+import { formatNaira } from "@/lib/format";
+import Link from "next/link";
 
-const records = [
-  {
-    date: "Mar 2, 2026",
-    type: "Sunday Service",
-    givers: "312",
-    amount: "₦485,000",
-    chip: "orange",
-  },
-  {
-    date: "Feb 23, 2026",
-    type: "Sunday Service",
-    givers: "340",
-    amount: "₦520,000",
-    chip: "orange",
-  },
-  {
-    date: "Feb 16, 2026",
-    type: "Special Offering",
-    givers: "289",
-    amount: "₦750,000",
-    chip: "purple",
-  },
-  {
-    date: "Feb 9, 2026",
-    type: "Sunday Service",
-    givers: "298",
-    amount: "₦445,000",
-    chip: "orange",
-  },
-  {
-    date: "Feb 2, 2026",
-    type: "Sunday Service",
-    givers: "325",
-    amount: "₦510,000",
-    chip: "orange",
-  },
-  {
-    date: "Jan 26, 2026",
-    type: "Thanksgiving",
-    givers: "410",
-    amount: "₦1,200,000",
-    chip: "orange",
-  },
-];
+const chipMap: Record<string, string> = {
+  "Sunday Service": "orange",
+  "Special Offering": "purple",
+  Thanksgiving: "orange",
+};
 
-export default function OffertoryPage() {
+export const dynamic = "force-dynamic";
+
+export default async function OffertoryPage() {
+  const [stats, records] = await Promise.all([
+    getOffertoryStats(),
+    getOffertoryRecords(),
+  ]);
   return (
     <div>
       <div className="gp-page-header">
@@ -60,25 +25,29 @@ export default function OffertoryPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button className="gp-muted-btn">
+          <Link className="gp-muted-btn" href="/api/export/offertory">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 4v10" />
               <path d="M7 9l5 5 5-5" />
               <rect x="4" y="18" width="16" height="2" rx="1" />
             </svg>
             Export
-          </button>
-          <button className="gp-action-btn">
+          </Link>
+          <Link className="gp-action-btn" href="/offertory/new">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 5v14M5 12h14" />
             </svg>
             Record Entry
-          </button>
+          </Link>
         </div>
       </div>
 
       <section className="gp-offertory-stats">
-        {stats.map((stat) => (
+        {[
+          { label: "This Month", value: stats.thisMonth },
+          { label: "Last Month", value: stats.lastMonth },
+          { label: "Total This Year", value: stats.thisYear },
+        ].map((stat) => (
           <div key={stat.label} className="gp-stat-mini">
             <div className="gp-event-icon">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -88,7 +57,7 @@ export default function OffertoryPage() {
             </div>
             <div>
               <h4>{stat.label}</h4>
-              <p>{stat.value}</p>
+              <p>{formatNaira(stat.value)}</p>
             </div>
           </div>
         ))}
@@ -109,13 +78,21 @@ export default function OffertoryPage() {
           </thead>
           <tbody>
             {records.map((row) => (
-              <tr key={row.date}>
-                <td>{row.date}</td>
+              <tr key={row.id}>
                 <td>
-                  <span className={`gp-chip ${row.chip}`}>{row.type}</span>
+                  {new Date(row.date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </td>
+                <td>
+                  <span className={`gp-chip ${chipMap[row.type] ?? "orange"}`}>
+                    {row.type}
+                  </span>
                 </td>
                 <td>{row.givers}</td>
-                <td className="amount">{row.amount}</td>
+                <td className="amount">{formatNaira(row.amount)}</td>
               </tr>
             ))}
           </tbody>
