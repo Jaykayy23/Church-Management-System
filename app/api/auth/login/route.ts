@@ -26,10 +26,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
+  const role = user.role === "admin" || user.role === "staff" ? user.role : "staff";
   const token = await createSessionToken({
     sub: user.id,
     username: user.username,
-    role: user.role,
+    role,
     name: user.name,
   });
 
