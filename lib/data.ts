@@ -9,36 +9,29 @@ export async function getDashboardStats() {
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
-  const [
-    totalMembers,
-    upcomingEvents,
-    activeProjects,
-    offertorySum,
-    offertoryPrevSum,
-    membersCurrent,
-    membersPrev,
-    activeBudget,
-  ] = await Promise.all([
-    prisma.member.count(),
-    prisma.event.count({ where: { startAt: { gte: now, lt: nextWeek } } }),
-    prisma.project.count({ where: { status: "Active" } }),
-    prisma.offertoryRecord.aggregate({
-      _sum: { amount: true },
-      where: { date: { gte: monthStart } },
-    }),
-    prisma.offertoryRecord.aggregate({
-      _sum: { amount: true },
-      where: { date: { gte: lastMonthStart, lte: lastMonthEnd } },
-    }),
-    prisma.member.count({ where: { joinedAt: { gte: thirtyDaysAgo } } }),
-    prisma.member.count({
-      where: { joinedAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
-    }),
-    prisma.project.aggregate({
-      _sum: { goalAmount: true },
-      where: { status: "Active" },
-    }),
-  ]);
+  const totalMembers = await prisma.member.count();
+  const upcomingEvents = await prisma.event.count({
+    where: { startAt: { gte: now, lt: nextWeek } },
+  });
+  const activeProjects = await prisma.project.count({ where: { status: "Active" } });
+  const offertorySum = await prisma.offertoryRecord.aggregate({
+    _sum: { amount: true },
+    where: { date: { gte: monthStart } },
+  });
+  const offertoryPrevSum = await prisma.offertoryRecord.aggregate({
+    _sum: { amount: true },
+    where: { date: { gte: lastMonthStart, lte: lastMonthEnd } },
+  });
+  const membersCurrent = await prisma.member.count({
+    where: { joinedAt: { gte: thirtyDaysAgo } },
+  });
+  const membersPrev = await prisma.member.count({
+    where: { joinedAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo } },
+  });
+  const activeBudget = await prisma.project.aggregate({
+    _sum: { goalAmount: true },
+    where: { status: "Active" },
+  });
 
   const currentMembers = membersCurrent ?? 0;
   const prevMembers = membersPrev ?? 0;
@@ -209,4 +202,18 @@ export async function createUser({
 export async function healthCheck() {
   const result = await prisma.$queryRaw<{ ok: number }[]>`SELECT 1 as ok`;
   return result[0]?.ok === 1;
+}
+
+export async function getSettings() {
+  const slug = "default";
+  const existing = await prisma.appSetting.findUnique({ where: { slug } });
+  if (existing) return existing;
+  return prisma.appSetting.create({
+    data: {
+      slug,
+      churchName: process.env.NEXT_PUBLIC_CHURCH_NAME ?? "Labone Church of Christ",
+      timezone: "Africa/Accra",
+      currency: "GHS",
+    },
+  });
 }

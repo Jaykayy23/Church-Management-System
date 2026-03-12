@@ -1,6 +1,7 @@
 import { getProjects } from "@/lib/data";
-import { formatNaira } from "@/lib/format";
+import { formatCedis } from "@/lib/format";
 import Link from "next/link";
+import ProjectActions from "./ProjectActions";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export default async function ProjectsPage() {
                 </span>
               </p>
               <p className="gp-event-meta">
-                {formatNaira(raised)} raised
+                {formatCedis(raised)} raised
               </p>
               <div className="gp-project-progress">
                 <span style={{ width: `${percent}%` }} />
@@ -57,8 +58,9 @@ export default async function ProjectsPage() {
             </div>
             <div className="gp-project-right">
               {percent}%
-              <small>{formatNaira(goal)} goal</small>
+              <small>{formatCedis(goal)} goal</small>
               <small>funded</small>
+              <ProjectActions projectId={project.id} />
             </div>
           </div>
         )})}

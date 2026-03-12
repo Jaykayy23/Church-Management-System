@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type Member = {
   id: string;
@@ -9,33 +9,58 @@ type Member = {
   lastName: string;
 };
 
-export default function NewContributionPage() {
+function toDateInput(value?: string | Date | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  const pad = (num: number) => String(num).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}`;
+}
+
+export default function EditContributionPage() {
   const router = useRouter();
+  const params = useParams();
+  const contributionId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [members, setMembers] = useState<Member[]>([]);
   const [memberId, setMemberId] = useState("");
   const [type, setType] = useState("Tithe");
-  const [project, setProject] = useState("General Fund");
+  const [project, setProject] = useState("");
   const [date, setDate] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/members")
-      .then((res) => res.json())
-      .then((data) => {
-        setMembers(data.data ?? []);
-        if (data.data?.length) {
-          setMemberId(data.data[0].id);
+    if (!contributionId) return;
+    Promise.all([fetch("/api/members"), fetch(`/api/contributions/${contributionId}`)])
+      .then(async ([membersRes, contributionRes]) => {
+        const membersData = await membersRes.json();
+        const contributionData = await contributionRes.json();
+        const list = membersData.data ?? [];
+        setMembers(list);
+        const contribution = contributionData.data;
+        if (contribution) {
+          setMemberId(contribution.memberId ?? list[0]?.id ?? "");
+          setType(contribution.type ?? "Tithe");
+          setProject(contribution.project ?? "");
+          setDate(toDateInput(contribution.date));
+          setAmount(contribution.amount?.toString() ?? "");
+        } else if (list.length) {
+          setMemberId(list[0].id);
         }
       })
-      .catch(() => setMembers([]));
-  }, []);
+      .catch(() => setError("Unable to load contribution."));
+  }, [contributionId]);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
-    const response = await fetch("/api/contributions", {
-      method: "POST",
+    if (!contributionId) {
+      setError("Missing contribution id.");
+      return;
+    }
+    const response = await fetch(`/api/contributions/${contributionId}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         memberId,
@@ -46,7 +71,7 @@ export default function NewContributionPage() {
       }),
     });
     if (!response.ok) {
-      setError("Failed to record contribution.");
+      setError("Failed to update contribution.");
       return;
     }
     router.push("/contributions");
@@ -56,10 +81,8 @@ export default function NewContributionPage() {
     <div>
       <div className="gp-page-header">
         <div>
-          <h1 className="gp-page-title">Record Contribution</h1>
-          <p className="gp-page-subtitle">
-            Log a member contribution or donation.
-          </p>
+          <h1 className="gp-page-title">Edit Contribution</h1>
+          <p className="gp-page-subtitle">Update contribution details.</p>
         </div>
       </div>
 
@@ -118,7 +141,7 @@ export default function NewContributionPage() {
         {error ? <p className="gp-login-error">{error}</p> : null}
         <div className="gp-form-actions">
           <button className="gp-action-btn" type="submit">
-            Record Contribution
+            Save Changes
           </button>
         </div>
       </form>

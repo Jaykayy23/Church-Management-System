@@ -6,8 +6,9 @@
    npm install
    ```
 2. Update `.env.local`:
-   - `AUTH_SECRET` (a strong random value)
-   - `ADMIN_SETUP_KEY` (used once to initialize the database and create the first admin)
+    - `AUTH_SECRET` (a strong random value)
+    - `ADMIN_SETUP_KEY` (used once to initialize the database and create the first admin)
+    - `NEXT_PUBLIC_CHURCH_NAME` (display name for the UI)
 3. Run Prisma migrations + seed:
    ```bash
    npx prisma migrate dev --name init

@@ -1,4 +1,4 @@
-export function formatNaira(amount: unknown) {
+export function formatCedis(amount: unknown) {
   const value =
     typeof amount === "string"
       ? Number(amount)
@@ -7,9 +7,9 @@ export function formatNaira(amount: unknown) {
         : amount && typeof amount === "object" && "toNumber" in amount
           ? (amount as { toNumber: () => number }).toNumber()
           : Number(amount?.toString?.() ?? 0);
-  return new Intl.NumberFormat("en-NG", {
+  return new Intl.NumberFormat("en-GH", {
     style: "currency",
-    currency: "NGN",
+    currency: "GHS",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);

@@ -37,7 +37,6 @@ export default function SignupForm() {
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="John Doe"
           required
         />
       </label>
@@ -46,7 +45,6 @@ export default function SignupForm() {
         <input
           value={username}
           onChange={(event) => setUsername(event.target.value)}
-          placeholder="labone-staff"
           required
         />
       </label>
@@ -56,7 +54,6 @@ export default function SignupForm() {
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="********"
           required
         />
       </label>

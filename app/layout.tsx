@@ -7,8 +7,10 @@ const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
+const churchName = process.env.NEXT_PUBLIC_CHURCH_NAME ?? "Church";
+
 export const metadata: Metadata = {
-  title: "GracePoint Admin",
+  title: `${churchName} Admin`,
   description: "Church management dashboard",
 };
 

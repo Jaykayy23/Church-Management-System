@@ -1,3 +1,7 @@
+import SettingsForm from "./SettingsForm";
+
+export const dynamic = "force-dynamic";
+
 export default function SettingsPage() {
   return (
     <div>
@@ -11,12 +15,10 @@ export default function SettingsPage() {
       </div>
 
       <div className="gp-settings-card">
-        <h4>General Settings</h4>
-        <p>
-          Settings and configuration options will be available here. Connect a
-          backend to enable full functionality.
-        </p>
+        <h4>Church Profile</h4>
+        <p>Update the core details used across the dashboard.</p>
       </div>
+      <SettingsForm />
     </div>
   );
 }

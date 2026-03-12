@@ -2,8 +2,9 @@ import {
   getDashboardStats,
   getUpcomingEvents,
   getRecentOffertory,
+  getSettings,
 } from "@/lib/data";
-import { formatNaira } from "@/lib/format";
+import { formatCedis } from "@/lib/format";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +48,9 @@ function StatIcon({ name }: { name: string }) {
 }
 
 export default async function DashboardPage() {
+  const settings = await getSettings();
+  const churchName =
+    settings?.churchName ?? process.env.NEXT_PUBLIC_CHURCH_NAME ?? "Church";
   const [statsData, events, offertory] = await Promise.all([
     getDashboardStats(),
     getUpcomingEvents(4),
@@ -57,22 +61,24 @@ export default async function DashboardPage() {
     {
       label: "Total Members",
       value: statsData.totalMembers.toLocaleString(),
-      meta: `${statsData.membersChangePct >= 0 ? "↗" : "↘"} ${Math.abs(
+      meta: `${statsData.membersChangePct >= 0 ? "?" : "?"} ${Math.abs(
         statsData.membersChangePct
       ).toFixed(1)}%`,
       metaClass: statsData.membersChangePct >= 0 ? "" : "down",
       color: "blue",
       icon: "users",
+      href: "/members",
     },
     {
       label: "This Month's Offertory",
-      value: formatNaira(statsData.thisMonthOffertory),
-      meta: `${statsData.offertoryChangePct >= 0 ? "↗" : "↘"} ${Math.abs(
+      value: formatCedis(statsData.thisMonthOffertory),
+      meta: `${statsData.offertoryChangePct >= 0 ? "?" : "?"} ${Math.abs(
         statsData.offertoryChangePct
       ).toFixed(1)}%`,
       metaClass: statsData.offertoryChangePct >= 0 ? "" : "down",
       color: "orange",
       icon: "cash",
+      href: "/offertory",
     },
     {
       label: "Upcoming Events",
@@ -81,14 +87,16 @@ export default async function DashboardPage() {
       metaClass: "",
       color: "green",
       icon: "calendar",
+      href: "/events",
     },
     {
       label: "Active Projects",
       value: statsData.activeProjects.toString(),
-      meta: `${formatNaira(statsData.activeBudget)} budget`,
+      meta: `${formatCedis(statsData.activeBudget)} budget`,
       metaClass: "",
       color: "yellow",
       icon: "folder",
+      href: "/projects",
     },
   ];
   return (
@@ -97,14 +105,18 @@ export default async function DashboardPage() {
         <div>
           <h1 className="gp-page-title">Dashboard</h1>
           <p className="gp-page-subtitle">
-            Welcome back! Here's what's happening at Labone Church of Christ.
+            Welcome back! Here's what's happening at {churchName}.
           </p>
         </div>
       </div>
 
       <section className="gp-stats">
         {stats.map((stat) => (
-          <div key={stat.label} className="gp-stat-card">
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className="gp-stat-card gp-stat-link"
+          >
             <div>
               <p className="gp-stat-label">{stat.label}</p>
               <p className="gp-stat-value">{stat.value}</p>
@@ -113,7 +125,7 @@ export default async function DashboardPage() {
             <div className={`gp-stat-icon ${stat.color}`}>
               <StatIcon name={stat.icon} />
             </div>
-          </div>
+          </Link>
         ))}
       </section>
 
@@ -121,7 +133,9 @@ export default async function DashboardPage() {
         <div className="gp-card">
           <div className="gp-panel-header">
             <p className="gp-panel-title">Upcoming Events</p>
-            <span className="gp-panel-link">View all</span>
+            <Link className="gp-panel-link" href="/events">
+              View all
+            </Link>
           </div>
           <div className="gp-event-list">
             {events.map((event) => (
@@ -144,9 +158,7 @@ export default async function DashboardPage() {
                     })}
                   </p>
                 </div>
-                <span className="gp-chip">
-                  {event.expectedCount} expected
-                </span>
+                <span className="gp-chip">{event.expectedCount} expected</span>
               </div>
             ))}
           </div>
@@ -154,7 +166,9 @@ export default async function DashboardPage() {
         <div className="gp-card">
           <div className="gp-panel-header">
             <p className="gp-panel-title">Recent Offertory</p>
-            <span className="gp-panel-link">View all</span>
+            <Link className="gp-panel-link" href="/offertory">
+              View all
+            </Link>
           </div>
           <div className="gp-table-wrap">
             {offertory.map((item) => (
@@ -169,9 +183,7 @@ export default async function DashboardPage() {
                     })}
                   </p>
                 </div>
-                <span className="gp-event-title">
-                  {formatNaira(item.amount)}
-                </span>
+                <span className="gp-event-title">{formatCedis(item.amount)}</span>
               </div>
             ))}
           </div>
@@ -181,9 +193,7 @@ export default async function DashboardPage() {
       <section className="gp-quick-actions">
         <div>
           <h4>Quick Actions</h4>
-          <p>
-            Record today's offertory, add a new member, or create an event.
-          </p>
+          <p>Record today's offertory, add a new member, or create an event.</p>
         </div>
         <div className="gp-quick-buttons">
           <Link className="gp-quick-btn" href="/offertory/new">

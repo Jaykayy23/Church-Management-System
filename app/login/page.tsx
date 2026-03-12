@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const churchName = process.env.NEXT_PUBLIC_CHURCH_NAME ?? "Church";
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -38,7 +39,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <div>
-            <p className="gp-brand-name">Labone Church of Christ</p>
+            <p className="gp-brand-name">{churchName}</p>
             <p className="gp-brand-sub">Admin Portal</p>
           </div>
         </div>
@@ -54,7 +55,6 @@ export default function LoginPage() {
             <input
               value={username}
               onChange={(event) => setUsername(event.target.value)}
-              placeholder="labone-admin"
               required
             />
           </label>
@@ -64,7 +64,6 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder="********"
               required
             />
           </label>

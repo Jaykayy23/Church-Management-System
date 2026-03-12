@@ -116,12 +116,23 @@ function SidebarSection({
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const fallbackName = process.env.NEXT_PUBLIC_CHURCH_NAME ?? "Church";
+  const [churchName, setChurchName] = useState(fallbackName);
   const [nextEvent, setNextEvent] = useState<{ title: string; time: string }>({
     title: "Upcoming Event",
     time: "No scheduled time",
   });
 
   useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        const settings = data.data;
+        if (settings?.churchName) {
+          setChurchName(settings.churchName);
+        }
+      })
+      .catch(() => null);
     fetch("/api/events")
       .then((res) => res.json())
       .then((data) => {
@@ -150,7 +161,7 @@ export default function Sidebar() {
           </svg>
         </div>
         <div>
-          <p className="gp-brand-name">Labone Church of Christ</p>
+          <p className="gp-brand-name">{churchName}</p>
           <p className="gp-brand-sub">Church Management</p>
         </div>
       </div>

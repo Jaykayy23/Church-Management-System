@@ -1,21 +1,52 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-export default function NewOffertoryPage() {
+function toDateInput(value?: string | Date | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  const pad = (num: number) => String(num).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}`;
+}
+
+export default function EditOffertoryPage() {
   const router = useRouter();
+  const params = useParams();
+  const recordId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [date, setDate] = useState("");
   const [type, setType] = useState("Sunday Service");
   const [givers, setGivers] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!recordId) return;
+    fetch(`/api/offertory/${recordId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const record = data.data;
+        if (record) {
+          setDate(toDateInput(record.date));
+          setType(record.type ?? "Sunday Service");
+          setGivers(record.givers?.toString() ?? "");
+          setAmount(record.amount?.toString() ?? "");
+        }
+      })
+      .catch(() => setError("Unable to load offertory record."));
+  }, [recordId]);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
-    const response = await fetch("/api/offertory", {
-      method: "POST",
+    if (!recordId) {
+      setError("Missing record id.");
+      return;
+    }
+    const response = await fetch(`/api/offertory/${recordId}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         date,
@@ -25,7 +56,7 @@ export default function NewOffertoryPage() {
       }),
     });
     if (!response.ok) {
-      setError("Failed to record offertory.");
+      setError("Failed to update offertory record.");
       return;
     }
     router.push("/offertory");
@@ -35,8 +66,8 @@ export default function NewOffertoryPage() {
     <div>
       <div className="gp-page-header">
         <div>
-          <h1 className="gp-page-title">Record Offertory</h1>
-          <p className="gp-page-subtitle">Log a new offertory entry.</p>
+          <h1 className="gp-page-title">Edit Offertory</h1>
+          <p className="gp-page-subtitle">Update offertory entry.</p>
         </div>
       </div>
 
@@ -81,7 +112,7 @@ export default function NewOffertoryPage() {
         {error ? <p className="gp-login-error">{error}</p> : null}
         <div className="gp-form-actions">
           <button className="gp-action-btn" type="submit">
-            Save Entry
+            Save Changes
           </button>
         </div>
       </form>

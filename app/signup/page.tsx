@@ -7,6 +7,7 @@ export default async function SignupPage() {
   if (!auth.ok) {
     redirect("/");
   }
+  const churchName = process.env.NEXT_PUBLIC_CHURCH_NAME ?? "Church";
 
   return (
     <div className="gp-login">
@@ -19,7 +20,7 @@ export default async function SignupPage() {
             </svg>
           </div>
           <div>
-            <p className="gp-brand-name">Labone Church of Christ</p>
+            <p className="gp-brand-name">{churchName}</p>
             <p className="gp-brand-sub">Admin Portal</p>
           </div>
         </div>

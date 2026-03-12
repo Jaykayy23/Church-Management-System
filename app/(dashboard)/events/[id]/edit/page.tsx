@@ -1,10 +1,21 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-export default function NewEventPage() {
+function toDateTimeLocal(value?: string | Date | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  const pad = (num: number) => String(num).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export default function EditEventPage() {
   const router = useRouter();
+  const params = useParams();
+  const eventId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [title, setTitle] = useState("");
   const [startAt, setStartAt] = useState("");
   const [location, setLocation] = useState("");
@@ -12,11 +23,32 @@ export default function NewEventPage() {
   const [category, setCategory] = useState("Worship");
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!eventId) return;
+    fetch(`/api/events/${eventId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const event = data.data;
+        if (event) {
+          setTitle(event.title ?? "");
+          setStartAt(toDateTimeLocal(event.startAt));
+          setLocation(event.location ?? "");
+          setExpectedCount(event.expectedCount?.toString() ?? "");
+          setCategory(event.category ?? "Worship");
+        }
+      })
+      .catch(() => setError("Unable to load event."));
+  }, [eventId]);
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError("");
-    const response = await fetch("/api/events", {
-      method: "POST",
+    if (!eventId) {
+      setError("Missing event id.");
+      return;
+    }
+    const response = await fetch(`/api/events/${eventId}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
@@ -27,7 +59,7 @@ export default function NewEventPage() {
       }),
     });
     if (!response.ok) {
-      setError("Failed to create event.");
+      setError("Failed to update event.");
       return;
     }
     router.push("/events");
@@ -37,8 +69,8 @@ export default function NewEventPage() {
     <div>
       <div className="gp-page-header">
         <div>
-          <h1 className="gp-page-title">Create Event</h1>
-          <p className="gp-page-subtitle">Add a new church event.</p>
+          <h1 className="gp-page-title">Edit Event</h1>
+          <p className="gp-page-subtitle">Update event details.</p>
         </div>
       </div>
 
@@ -96,7 +128,7 @@ export default function NewEventPage() {
         {error ? <p className="gp-login-error">{error}</p> : null}
         <div className="gp-form-actions">
           <button className="gp-action-btn" type="submit">
-            Create Event
+            Save Changes
           </button>
         </div>
       </form>

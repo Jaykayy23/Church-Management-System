@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -80,4 +81,19 @@ model OffertoryRecord {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("offertory_records")
+}
+
+model AppSetting {
+  id         Int      @id @default(autoincrement())
+  slug       String   @unique
+  churchName String   @map("church_name")
+  address    String?
+  phone      String?
+  email      String?
+  timezone   String   @default("Africa/Accra")
+  currency   String   @default("GHS")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("app_settings")
 }

@@ -3,6 +3,19 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
+  const defaultChurchName =
+    process.env.NEXT_PUBLIC_CHURCH_NAME || "Labone Church of Christ";
+  await prisma.appSetting.upsert({
+    where: { slug: "default" },
+    update: { churchName: defaultChurchName },
+    create: {
+      slug: "default",
+      churchName: defaultChurchName,
+      timezone: "Africa/Accra",
+      currency: "GHS",
+    },
+  });
+
   const members = [
     {
       firstName: "Adebayo",

@@ -1,5 +1,6 @@
 import { getEvents } from "@/lib/data";
 import Link from "next/link";
+import EventActions from "./EventActions";
 
 const chipMap: Record<string, string> = {
   Worship: "orange",
@@ -85,6 +86,7 @@ export default async function EventsPage() {
             <span className={`gp-chip ${chipMap[event.category] ?? "orange"}`}>
               {event.category}
             </span>
+            <EventActions eventId={event.id} />
           </div>
         ))}
       </div>

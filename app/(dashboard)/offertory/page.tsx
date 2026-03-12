@@ -1,6 +1,7 @@
 import { getOffertoryRecords, getOffertoryStats } from "@/lib/data";
-import { formatNaira } from "@/lib/format";
+import { formatCedis } from "@/lib/format";
 import Link from "next/link";
+import OffertoryActions from "./OffertoryActions";
 
 const chipMap: Record<string, string> = {
   "Sunday Service": "orange",
@@ -57,7 +58,7 @@ export default async function OffertoryPage() {
             </div>
             <div>
               <h4>{stat.label}</h4>
-              <p>{formatNaira(stat.value)}</p>
+              <p>{formatCedis(stat.value)}</p>
             </div>
           </div>
         ))}
@@ -74,6 +75,7 @@ export default async function OffertoryPage() {
               <th>Type</th>
               <th>Givers</th>
               <th className="amount">Amount</th>
+              <th className="actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -92,7 +94,10 @@ export default async function OffertoryPage() {
                   </span>
                 </td>
                 <td>{row.givers}</td>
-                <td className="amount">{formatNaira(row.amount)}</td>
+                <td className="amount">{formatCedis(row.amount)}</td>
+                <td className="actions">
+                  <OffertoryActions recordId={row.id} />
+                </td>
               </tr>
             ))}
           </tbody>

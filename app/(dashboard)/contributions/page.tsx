@@ -1,6 +1,7 @@
 import { getContributions } from "@/lib/data";
-import { formatNaira } from "@/lib/format";
+import { formatCedis } from "@/lib/format";
 import Link from "next/link";
+import ContributionActions from "./ContributionActions";
 
 const chipMap: Record<string, string> = {
   Tithe: "orange",
@@ -60,6 +61,7 @@ export default async function ContributionsPage() {
               <th>Project</th>
               <th>Date</th>
               <th className="amount">Amount</th>
+              <th className="actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -79,7 +81,10 @@ export default async function ContributionsPage() {
                     year: "numeric",
                   })}
                 </td>
-                <td className="amount">{formatNaira(row.amount)}</td>
+                <td className="amount">{formatCedis(row.amount)}</td>
+                <td className="actions">
+                  <ContributionActions contributionId={row.id} />
+                </td>
               </tr>
             ))}
           </tbody>
