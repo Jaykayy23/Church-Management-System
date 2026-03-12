@@ -1,65 +1,202 @@
-import Image from "next/image";
+const stats = [
+  {
+    label: "Total Members",
+    value: "1,247",
+    meta: "+12%",
+    color: "blue",
+    icon: "users",
+  },
+  {
+    label: "This Month's Offertory",
+    value: "₦2,450,000",
+    meta: "+8.2%",
+    color: "orange",
+    icon: "cash",
+  },
+  {
+    label: "Upcoming Events",
+    value: "6",
+    meta: "This week",
+    color: "green",
+    icon: "calendar",
+  },
+  {
+    label: "Active Projects",
+    value: "4",
+    meta: "₦8.2M budget",
+    color: "yellow",
+    icon: "folder",
+  },
+];
 
-export default function Home() {
+const upcomingEvents = [
+  {
+    title: "Sunday Worship Service",
+    date: "Mar 9, 2026 - 9:00 AM",
+    tag: "342 expected",
+  },
+  {
+    title: "Youth Fellowship",
+    date: "Mar 11, 2026 - 5:00 PM",
+    tag: "89 expected",
+  },
+  {
+    title: "Bible Study",
+    date: "Mar 12, 2026 - 6:30 PM",
+    tag: "120 expected",
+  },
+  {
+    title: "Prayer Meeting",
+    date: "Mar 13, 2026 - 6:00 AM",
+    tag: "85 expected",
+  },
+];
+
+const offertory = [
+  { title: "Sunday Service", date: "Mar 2, 2026", amount: "₦485,000" },
+  { title: "Sunday Service", date: "Feb 23, 2026", amount: "₦520,000" },
+  { title: "Special Offering", date: "Feb 16, 2026", amount: "₦750,000" },
+  { title: "Sunday Service", date: "Feb 9, 2026", amount: "₦445,000" },
+];
+
+function StatIcon({ name }: { name: string }) {
+  if (name === "users") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="9" cy="9" r="3" />
+        <circle cx="17" cy="9" r="3" />
+        <path d="M3.5 19c.6-2.8 3-4.5 6.5-4.5" />
+        <path d="M20.5 19c-.6-2.8-3-4.5-6.5-4.5" />
+      </svg>
+    );
+  }
+  if (name === "cash") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 7h18v10H3z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    );
+  }
+  if (name === "calendar") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="3" />
+        <path d="M8 3v4M16 3v4M3 9h18" />
+      </svg>
+    );
+  }
+  if (name === "folder") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 6h7l2 2h9v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6z" />
+      </svg>
+    );
+  }
+
+  return null;
+}
+
+export default function DashboardPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div>
+      <div className="gp-page-header">
+        <div>
+          <h1 className="gp-page-title">Dashboard</h1>
+          <p className="gp-page-subtitle">
+            Welcome back! Here's what's happening at Labone Church of Christ.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      <section className="gp-stats">
+        {stats.map((stat) => (
+          <div key={stat.label} className="gp-stat-card">
+            <div>
+              <p className="gp-stat-label">{stat.label}</p>
+              <p className="gp-stat-value">{stat.value}</p>
+              <p className="gp-stat-meta">{stat.meta}</p>
+            </div>
+            <div className={`gp-stat-icon ${stat.color}`}>
+              <StatIcon name={stat.icon} />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section className="gp-panels">
+        <div className="gp-card">
+          <div className="gp-panel-header">
+            <p className="gp-panel-title">Upcoming Events</p>
+            <span className="gp-panel-link">View all</span>
+          </div>
+          <div className="gp-event-list">
+            {upcomingEvents.map((event) => (
+              <div key={event.title} className="gp-event-item">
+                <div className="gp-event-icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="16" rx="3" />
+                    <path d="M8 3v4M16 3v4M3 9h18" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="gp-event-title">{event.title}</p>
+                  <p className="gp-event-meta">{event.date}</p>
+                </div>
+                <span className="gp-chip">{event.tag}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+        <div className="gp-card">
+          <div className="gp-panel-header">
+            <p className="gp-panel-title">Recent Offertory</p>
+            <span className="gp-panel-link">View all</span>
+          </div>
+          <div className="gp-table-wrap">
+            {offertory.map((item) => (
+              <div key={item.date} className="gp-offertory-item">
+                <div>
+                  <p className="gp-event-title">{item.title}</p>
+                  <p className="gp-event-meta">{item.date}</p>
+                </div>
+                <span className="gp-event-title">{item.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="gp-quick-actions">
+        <div>
+          <h4>Quick Actions</h4>
+          <p>
+            Record today's offertory, add a new member, or create an event.
+          </p>
+        </div>
+        <div className="gp-quick-buttons">
+          <button className="gp-quick-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 7h18v10H3z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            Record Offertory
+          </button>
+          <button className="gp-quick-btn secondary">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="7" r="3" />
+              <path d="M5 21a7 7 0 0 1 14 0" />
+            </svg>
+            Add Member
+          </button>
+          <button className="gp-quick-btn ghost">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            New Event
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
