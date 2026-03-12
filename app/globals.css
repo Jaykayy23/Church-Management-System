@@ -769,7 +769,7 @@ button {
 }
 
 .gp-panel-link::after {
-  content: "›";
+  content: ">";
   font-size: 14px;
   margin-left: 2px;
 }

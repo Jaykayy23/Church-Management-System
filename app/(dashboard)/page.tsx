@@ -61,7 +61,7 @@ export default async function DashboardPage() {
     {
       label: "Total Members",
       value: statsData.totalMembers.toLocaleString(),
-      meta: `${statsData.membersChangePct >= 0 ? "?" : "?"} ${Math.abs(
+      meta: `${statsData.membersChangePct >= 0 ? "+" : "-"} ${Math.abs(
         statsData.membersChangePct
       ).toFixed(1)}%`,
       metaClass: statsData.membersChangePct >= 0 ? "" : "down",
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
     {
       label: "This Month's Offertory",
       value: formatCedis(statsData.thisMonthOffertory),
-      meta: `${statsData.offertoryChangePct >= 0 ? "?" : "?"} ${Math.abs(
+      meta: `${statsData.offertoryChangePct >= 0 ? "+" : "-"} ${Math.abs(
         statsData.offertoryChangePct
       ).toFixed(1)}%`,
       metaClass: statsData.offertoryChangePct >= 0 ? "" : "down",

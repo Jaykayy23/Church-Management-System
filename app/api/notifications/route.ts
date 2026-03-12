@@ -37,7 +37,7 @@ export async function GET() {
     ...upcomingEvents.map((event) => ({
       id: `event-${event.id}`,
       title: event.title,
-      detail: `Event on ${event.startAt.toLocaleDateString("en-US", {
+      detail: `Event on ${event.startAt.toLocaleString("en-US", {
         month: "short",
         day: "numeric",
         hour: "numeric",
